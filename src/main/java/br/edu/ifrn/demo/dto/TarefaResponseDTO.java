@@ -1,8 +1,8 @@
 package br.edu.ifrn.demo.dto;
 
-public record TarefaResponseDTO() {
-    static Long id;
-    static String titulo;
-    static boolean concluido;
-
-}
+public record TarefaResponseDTO(
+    Long id,
+    String titulo,
+    boolean concluido,
+    String prioridade
+) {}

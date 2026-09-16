@@ -1,11 +1,13 @@
 package br.edu.ifrn.demo.controller;
 
+import br.edu.ifrn.demo.dto.TarefaRequestDTO;
+import br.edu.ifrn.demo.dto.TarefaResponseDTO;
 import br.edu.ifrn.demo.model.TarefaModel;
 import br.edu.ifrn.demo.service.TarefaService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tarefas")
@@ -15,11 +17,10 @@ public class TarefaController {
         this.service = service;
     }
     @PostMapping
-    public ResponseEntity<TarefaModel> criar(@RequestBody Map<String, String>
-                                                corpo) {
-        System.out.println("[CONTROLLER] Requisição recebida: POST/tarefas");
-        TarefaModel tarefa = service.criar(corpo.get("titulo"));
-        return ResponseEntity.ok(tarefa);
+    public ResponseEntity<TarefaResponseDTO> criar(@RequestBody TarefaRequestDTO corpo) {
+        TarefaResponseDTO criada=service.criar(corpo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
+        // System.out.println("[CONTROLLER] Requisição recebida: POST/tarefas");
     }
     @GetMapping
     public ResponseEntity<List<TarefaModel>> listar() {
