@@ -9,6 +9,7 @@ public class TarefaModel {
         this.id = id;
         this.titulo = titulo;
         this.concluida = concluida;
+        System.out.println("Criando Tarefa...");
     }
 
     public Long getId() {
