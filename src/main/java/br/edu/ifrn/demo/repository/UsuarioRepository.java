@@ -1,15 +1,10 @@
 package br.edu.ifrn.demo.repository;
 
 import br.edu.ifrn.demo.model.Usuario;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
 @Repository
-//public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
-//
-//}
-
 public class UsuarioRepository {
     private final Map<Long, Usuario> banco = new LinkedHashMap<>();
 
@@ -29,12 +24,14 @@ public class UsuarioRepository {
         return Optional.ofNullable(banco.get(id));
     }
 
-    public Usuario atualizar(Long id, Usuario usuario) {
+    public Usuario atualizar(Usuario usuario) {
         System.out.println("[REPOSITORY] Atualizando dados do usuário" + usuario.getNome());
-        return banco.get(id);
+        banco.put(usuario.getId(), usuario);
+        return usuario;
     }
 
-    public void remover(Long id) {
+    public boolean remover(Long id) {
         System.out.println("[REPOSITORY] Removendo o usuário do banco");
+        return banco.remove(id) != null;
     }
 }
