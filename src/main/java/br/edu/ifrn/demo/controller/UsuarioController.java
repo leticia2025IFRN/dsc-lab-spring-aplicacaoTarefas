@@ -17,7 +17,7 @@ public class UsuarioController {
         this.service = service;
     }
 
-    @PostMapping("/usuarios")
+    @PostMapping
     public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestBody UsuarioRequestDTO corpo) {
         System.out.println("[CONTROLLER] Requisição recebida: POST /usuarios");
         UsuarioResponseDTO criado = service.criar(corpo);
@@ -30,21 +30,26 @@ public class UsuarioController {
         return ResponseEntity.ok(service.listar());
     }
 
-    @GetMapping("/usuarios/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarPorID(@PathVariable Long id) {
         System.out.println("[CONTROLLER] Requisição recebida: GET /usuarios/" + id);
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
-    @PutMapping("/usuario/{id}")
-    public  ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+    @PutMapping("/{id}")
+    public  ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody UsuarioRequestDTO corpo) {
         System.out.println("[CONTROLLER] Requisição recebida: PUT /usuarios/" + id);
-        return ResponseEntity.ok(service.atualizar(id, usuario));
+        return ResponseEntity.ok(service.atualizar(id, corpo));
     }
 
-    @DeleteMapping("/usuario/{id}")
-    public ResponseEntity<Usuario> remover(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> remover(@PathVariable Long id) {
         System.out.println("[CONTROLLER] Requisição recebida: DEL /usuarios/" + id);
-        return ResponseEntity.ok(service.remover(id));
+        boolean removido = service.remover(id);
+        if  (removido) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

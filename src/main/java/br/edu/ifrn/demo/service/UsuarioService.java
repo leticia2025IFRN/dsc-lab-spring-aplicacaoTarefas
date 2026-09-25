@@ -43,14 +43,23 @@ public class UsuarioService {
 
     public Usuario buscarPorId(Long id) {
         System.out.println("[SERVICE] Processando busca por id: " + id);
-        return repository.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada: " + id));
+        return repository.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrada: " + id));
     }
 
-    public Usuario atualizar(Long id , Usuario usuario) {
-        UsuarioRepository.atualizar(id, usuario);
+    public Usuario atualizar(Long id , UsuarioRequestDTO dto) {
+        Usuario usuario = buscarPorId(id);
+        System.out.println("[SERVICE] Atualizar usuário: " + id);
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setCargo(dto.cargo());
+        return repository.atualizar(usuario);
     }
 
-    public void remover(Long id) {
-        return UsuarioRepository.remover(id);
+    public boolean remover(Long id) {
+        if (repository.buscarPorId(id).isEmpty()) {
+            throw new RuntimeException("Não foi possível deletar. Usuário não encontrada: " + id);
+        }
+        System.out.println("[SERVICE] Remover usuário: " + id);
+        return repository.remover(id);
     }
 }
