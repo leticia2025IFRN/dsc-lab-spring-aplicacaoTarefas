@@ -32,34 +32,34 @@ public class UsuarioService {
         if (nome == null || nome.isEmpty()) {
             throw new IllegalArgumentException("[SERVICE] O nome não pode ser nulo ou vazio.");
         }
-        Usuario salva = repository.criar(usuario);
+        Usuario salva = repository.salvar(usuario);
         return toResponseDTO(salva);
     }
 
-    public List<Usuario> listar() {
+    public List<Usuario> listarUsuarios() {
         System.out.println("[SERVICE] Solicitando lista de usuários ao repository.");
         return repository.listar();
     }
 
-    public Usuario buscarPorId(Long id) {
+    public Usuario buscarUsuarioPorId(Long id) {
         System.out.println("[SERVICE] Processando busca por id: " + id);
         return repository.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrada: " + id));
     }
 
     public Usuario atualizar(Long id , UsuarioRequestDTO dto) {
-        Usuario usuario = buscarPorId(id);
-        System.out.println("[SERVICE] Atualizar usuário: " + id);
+        Usuario usuario = buscarUsuarioPorId(id);
+        System.out.println("[SERVICE] Atualizando usuário: " + id);
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
         usuario.setCargo(dto.cargo());
-        return repository.atualizar(usuario);
+        return repository.salvar(usuario);
     }
 
     public boolean remover(Long id) {
         if (repository.buscarPorId(id).isEmpty()) {
             throw new RuntimeException("Não foi possível deletar. Usuário não encontrada: " + id);
         }
-        System.out.println("[SERVICE] Remover usuário: " + id);
+        System.out.println("[SERVICE] Removendo usuário: " + id);
         return repository.remover(id);
     }
 }

@@ -27,17 +27,17 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<List<Usuario>> listar() {
         System.out.println("[CONTROLLER] Requisição recebida: GET /usuarios");
-        return ResponseEntity.ok(service.listar());
+        return ResponseEntity.ok(service.listarUsuarios());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarPorID(@PathVariable Long id) {
         System.out.println("[CONTROLLER] Requisição recebida: GET /usuarios/" + id);
-        return ResponseEntity.ok(service.buscarPorId(id));
+        return ResponseEntity.ok(service.buscarUsuarioPorId(id));
     }
 
     @PutMapping("/{id}")
-    public  ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody UsuarioRequestDTO corpo) {
+    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody UsuarioRequestDTO corpo) {
         System.out.println("[CONTROLLER] Requisição recebida: PUT /usuarios/" + id);
         return ResponseEntity.ok(service.atualizar(id, corpo));
     }
@@ -46,7 +46,7 @@ public class UsuarioController {
     public ResponseEntity<Boolean> remover(@PathVariable Long id) {
         System.out.println("[CONTROLLER] Requisição recebida: DEL /usuarios/" + id);
         boolean removido = service.remover(id);
-        if  (removido) {
+        if (removido) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
