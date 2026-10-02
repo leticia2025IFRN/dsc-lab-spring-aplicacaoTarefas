@@ -1,0 +1,30 @@
+### Listar todas as tarefas (200)
+GET http://localhost:8080/tarefas
+
+### Criar primeira tarefa (201)
+POST http://localhost:8080/tarefas
+Content-Type: application/json
+
+{
+  "titulo": "Estudar Spring Boot",
+  "concluido": false,
+  "prioridade": "MEDIA"
+}
+
+### Criar primeira tarefa (201)
+POST http://localhost:8080/tarefas
+Content-Type: application/json
+
+{
+  "titulo": "Fazer exercício de JPA",
+  "concluido": false,
+  "prioridade": "ALTA"
+}
+
+### Atualizar tarefa ()
+PUT http://localhost:8080/tarefas/1
+Content-Type: application/json
+
+{
+    "titulo": "Entender CRUD"
+}

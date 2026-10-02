@@ -2,8 +2,9 @@ package br.edu.ifrn.demo.service;
 
 import br.edu.ifrn.demo.dto.TarefaRequestDTO;
 import br.edu.ifrn.demo.dto.TarefaResponseDTO;
-import br.edu.ifrn.demo.model.TarefaModel;
-import br.edu.ifrn.demo.repository.TarefaRepository;
+import br.edu.ifrn.demo.model.Prioridade;
+import br.edu.ifrn.demo.model.Tarefa;
+import br.edu.ifrn.demo.repository.InMemoryTarefaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,54 +12,71 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TarefaService {
-    private final TarefaRepository repository;
+    private final InMemoryTarefaRepository repository;
     private final AtomicLong sequencia = new AtomicLong();
 
-    public TarefaService(TarefaRepository repository) {
+    public TarefaService(InMemoryTarefaRepository repository) {
         this.repository = repository;
     }
 
-    public TarefaResponseDTO criar(TarefaRequestDTO dto) {
-        String titulo = dto.titulo();
-        TarefaModel tarefa = new TarefaModel(sequencia.incrementAndGet(),dto.titulo(),dto.descricao(),null);
-        System.out.println("[SERVICE] Validando regra de negócio para: " + titulo);
-        if (titulo == null || titulo.isBlank()) {
-            throw new IllegalArgumentException("O título da tarefa não pode ser vazio.");
-        }
-        TarefaModel salva = repository.salvar(tarefa);
-        return paraResponseDTO(salva);
-    }
-
-    private TarefaResponseDTO paraResponseDTO(TarefaModel tarefa) {
+    private TarefaResponseDTO paraResponseDTO(Tarefa tarefa) {
         return new TarefaResponseDTO(
             tarefa.getId(),
             tarefa.getTitulo(),
             tarefa.isConcluida(),
-            tarefa.getPrioridade()
+            tarefa.getPrioridade().toString()
         );
     }
 
-    public List<TarefaModel> listar() {
+    public TarefaResponseDTO criar(TarefaRequestDTO dto) {
+        String titulo = dto.titulo();
+        Tarefa tarefa = new Tarefa(sequencia.incrementAndGet(),dto.titulo(),false, Prioridade.BAIXA);
+        System.out.println("[SERVICE] Validando regra de negócio para: " + titulo);
+        if (titulo == null || titulo.isBlank()) {
+            throw new IllegalArgumentException("O título da tarefa não pode ser vazio.");
+        }
+        Tarefa salva = repository.salvarTarefa(tarefa);
+        return paraResponseDTO(salva);
+    }
+
+    public List<Tarefa> listar() {
         System.out.println("[SERVICE] Solicitando lista de tarefas ao repository");
-        return repository.listarTodas();
+        return repository.listarTodasTarefas();
     }
 
-    public TarefaModel buscarPorId(Long id) {
+    public Tarefa buscarPorId(Long id) {
         System.out.println("[SERVICE] Processando busca por id: " + id);
-        return repository.buscarPorId(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada: " + id));
+        return repository.buscarTarefaPorId(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada: " + id));
     }
 
-    public List<TarefaModel> listarConcluidos(){
+    public List<Tarefa> listarConcluidos(){
         System.out.println("[SERVICE] Solicitando lista de tarefas concluídas.");
-        List<TarefaModel> tarefas = listar();
-        List<TarefaModel> tarefasConclidas = new ArrayList<>();
+        List<Tarefa> tarefas = listar();
+        List<Tarefa> tarefasConclidas = new ArrayList<>();
 
-        for (TarefaModel tarefaModel: tarefas){
-            if (tarefaModel.isConcluida()){
-                tarefasConclidas.add(tarefaModel);
+        for (Tarefa tarefa: tarefas){
+            if (tarefa.isConcluida()){
+                tarefasConclidas.add(tarefa);
             }
         }
 
         return tarefasConclidas;
+    }
+
+    public TarefaResponseDTO atualizar (Long id, TarefaRequestDTO dto) {
+        Tarefa tarefa = buscarPorId(id);
+        tarefa.setTitulo(dto.titulo());
+        tarefa.setConcluida(dto.concluido());
+        tarefa.setPrioridade(Prioridade.valueOf(dto.prioridade()));
+        Tarefa atualizado = repository.salvarTarefa(tarefa);
+        return paraResponseDTO(atualizado);
+    }
+
+    public boolean deletar(Long id) {
+        if (repository.buscarTarefaPorId(id).isEmpty()) {
+            throw new RuntimeException("Não foi possível deletar. Tarefa não encontrada: " + id);
+        }
+        System.out.println("[SERVICE] Removendo tarefa: " + id);
+        return repository.deletarTarefa(id);
     }
 }
