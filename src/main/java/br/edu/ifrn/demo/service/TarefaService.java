@@ -4,7 +4,8 @@ import br.edu.ifrn.demo.dto.TarefaRequestDTO;
 import br.edu.ifrn.demo.dto.TarefaResponseDTO;
 import br.edu.ifrn.demo.model.Prioridade;
 import br.edu.ifrn.demo.model.Tarefa;
-import br.edu.ifrn.demo.repository.InMemoryTarefaRepository;
+import br.edu.ifrn.demo.repository.TarefaRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
@@ -12,10 +13,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class TarefaService {
-    private final InMemoryTarefaRepository repository;
+    private final TarefaRepository repository;
     private final AtomicLong sequencia = new AtomicLong();
 
-    public TarefaService(InMemoryTarefaRepository repository) {
+    public TarefaService(@Qualifier("inMemoryTarefaRepository") TarefaRepository repository) {
         this.repository = repository;
     }
 
@@ -35,18 +36,19 @@ public class TarefaService {
         if (titulo == null || titulo.isBlank()) {
             throw new IllegalArgumentException("O título da tarefa não pode ser vazio.");
         }
-        Tarefa salva = repository.salvarTarefa(tarefa);
+        Tarefa salva = repository.save(tarefa);
         return paraResponseDTO(salva);
     }
 
     public List<Tarefa> listar() {
         System.out.println("[SERVICE] Solicitando lista de tarefas ao repository");
-        return repository.listarTodasTarefas();
+        return repository.findAll();
     }
 
     public Tarefa buscarPorId(Long id) {
         System.out.println("[SERVICE] Processando busca por id: " + id);
-        return repository.buscarTarefaPorId(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada: " + id));
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada: " + id));
     }
 
     public List<Tarefa> listarConcluidos(){
@@ -68,15 +70,15 @@ public class TarefaService {
         tarefa.setTitulo(dto.titulo());
         tarefa.setConcluida(dto.concluido());
         tarefa.setPrioridade(Prioridade.valueOf(dto.prioridade()));
-        Tarefa atualizado = repository.salvarTarefa(tarefa);
+        Tarefa atualizado = repository.save(tarefa);
         return paraResponseDTO(atualizado);
     }
 
     public boolean deletar(Long id) {
-        if (repository.buscarTarefaPorId(id).isEmpty()) {
+        if (repository.findById(id).isEmpty()) {
             throw new RuntimeException("Não foi possível deletar. Tarefa não encontrada: " + id);
         }
         System.out.println("[SERVICE] Removendo tarefa: " + id);
-        return repository.deletarTarefa(id);
+        return repository.deleteTarefaById(id);
     }
 }
