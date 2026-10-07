@@ -50,6 +50,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.48</version>
+            <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <dependency>

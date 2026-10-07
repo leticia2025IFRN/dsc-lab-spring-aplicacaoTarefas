@@ -3,6 +3,7 @@ package br.edu.ifrn.demo.service;
 import br.edu.ifrn.demo.dto.TarefaRequestDTO;
 import br.edu.ifrn.demo.dto.TarefaResponseDTO;
 import br.edu.ifrn.demo.model.Prioridade;
+import br.edu.ifrn.demo.model.Status;
 import br.edu.ifrn.demo.model.Tarefa;
 import br.edu.ifrn.demo.repository.TarefaRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,14 +25,15 @@ public class TarefaService {
         return new TarefaResponseDTO(
             tarefa.getId(),
             tarefa.getTitulo(),
-            tarefa.isConcluida(),
-            tarefa.getPrioridade().toString()
+            tarefa.getPrioridade().toString(),
+            tarefa.getStatus().toString(),
+            tarefa.getUsuario()
         );
     }
 
     public TarefaResponseDTO criar(TarefaRequestDTO dto) {
         String titulo = dto.titulo();
-        Tarefa tarefa = new Tarefa(sequencia.incrementAndGet(),dto.titulo(),false, Prioridade.BAIXA);
+        Tarefa tarefa = new Tarefa(null,dto.titulo(),Prioridade.BAIXA, Status.TODO,dto.usuario());
         System.out.println("[SERVICE] Validando regra de negócio para: " + titulo);
         if (titulo == null || titulo.isBlank()) {
             throw new IllegalArgumentException("O título da tarefa não pode ser vazio.");
@@ -53,11 +55,12 @@ public class TarefaService {
 
     public List<Tarefa> listarConcluidos(){
         System.out.println("[SERVICE] Solicitando lista de tarefas concluídas.");
+        Status concluido = Status.FINISHED;
         List<Tarefa> tarefas = listar();
         List<Tarefa> tarefasConclidas = new ArrayList<>();
 
         for (Tarefa tarefa: tarefas){
-            if (tarefa.isConcluida()){
+            if (concluido.equals(tarefa.getStatus())){
                 tarefasConclidas.add(tarefa);
             }
         }
@@ -68,7 +71,7 @@ public class TarefaService {
     public TarefaResponseDTO atualizar (Long id, TarefaRequestDTO dto) {
         Tarefa tarefa = buscarPorId(id);
         tarefa.setTitulo(dto.titulo());
-        tarefa.setConcluida(dto.concluido());
+        tarefa.setStatus(Status.valueOf(dto.status()));
         tarefa.setPrioridade(Prioridade.valueOf(dto.prioridade()));
         Tarefa atualizado = repository.save(tarefa);
         return paraResponseDTO(atualizado);
